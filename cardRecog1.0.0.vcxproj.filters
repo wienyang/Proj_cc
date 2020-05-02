@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="yolo3">
+      <UniqueIdentifier>{e74828c6-2feb-48f3-9a10-dbbb1cd02843}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools">
+      <UniqueIdentifier>{f26245cb-5c88-4973-884a-f71802c34299}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="类型%255c正反面%255c方向">
+      <UniqueIdentifier>{eaa26677-ca26-4389-afb5-b8088f93391c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MRZ识别">
+      <UniqueIdentifier>{c0ee9d1a-24cb-4529-8e34-852221b002b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="证件表面信息">
+      <UniqueIdentifier>{fd1ef103-187f-4d4e-af24-74e4f93324e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="证件表面信息\澳门永久">
+      <UniqueIdentifier>{57c4a057-7d77-42ea-b5be-d927f37a9f6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="证件表面信息\新香港永久">
+      <UniqueIdentifier>{2002a754-d48d-44c2-bfb9-415908b360c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="证件表面信息\港澳通行证">
+      <UniqueIdentifier>{8562f1fc-3490-4811-b60a-db8e8dc2e4f6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\yolo3.cpp">
+      <Filter>yolo3</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tools.cpp">
+      <Filter>tools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HK_AM.cpp">
+      <Filter>证件表面信息\港澳通行证</Filter>
+    </ClCompile>
+    <ClCompile Include="src\N_HK_P.cpp">
+      <Filter>证件表面信息\新香港永久</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AM_P.cpp">
+      <Filter>证件表面信息\澳门永久</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\IdenCardType.cpp">
+      <Filter>类型%255c正反面%255c方向</Filter>
+    </ClCompile>
+    <ClCompile Include="src\findMRZ.cpp">
+      <Filter>MRZ识别</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mrzRecog.cpp">
+      <Filter>MRZ识别</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mrz.cpp">
+      <Filter>MRZ识别</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cardInfoRecog.cpp">
+      <Filter>证件表面信息</Filter>
+    </ClCompile>
+    <ClCompile Include="lib_json\json_reader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="lib_json\json_value.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="lib_json\json_writer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\AM_P.h">
+      <Filter>证件表面信息\澳门永久</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ocr.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\yolo3.h">
+      <Filter>yolo3</Filter>
+    </ClInclude>
+    <ClInclude Include="src\N_HK_P.h">
+      <Filter>证件表面信息\新香港永久</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tools.h">
+      <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HK_AM.h">
+      <Filter>证件表面信息\港澳通行证</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IdenCardType.h">
+      <Filter>类型%255c正反面%255c方向</Filter>
+    </ClInclude>
+    <ClInclude Include="src\findMRZ.h">
+      <Filter>MRZ识别</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mrz.h">
+      <Filter>MRZ识别</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mrzRecog.h">
+      <Filter>MRZ识别</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cardInfoRecog.h">
+      <Filter>证件表面信息</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cardRecog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
