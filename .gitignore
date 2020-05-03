@@ -348,3 +348,4 @@ healthchecksdb
 /json
 /crnn_model
 /cardInfo.txt
+cardRecog1.0.0.vcxproj
