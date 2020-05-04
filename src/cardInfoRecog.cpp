@@ -111,7 +111,16 @@ int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo, const char* 
 	viBackImg = cv::imread(viBack);
 	irFrontImg = cv::imread(irFront);
 	irBackImg = cv::imread(irBack);
-	if (viFrontImg.cols == 0 || viBackImg.cols == 0 || irFrontImg.cols == 0 || irBackImg.cols == 0)return -1;//Í¼Æ¬Â·¾¶´íÎó
+	if (viFrontImg.cols == 0 || viBackImg.cols == 0 || irFrontImg.cols == 0 || irBackImg.cols == 0) {
+		LOG(INFO) << "wrong image path...";
+		//¹Ø±Õglog
+		if (glog_initialized)
+		{
+			google::ShutdownGoogleLogging();
+			glog_initialized = false;
+		}
+		return -1;//Í¼Æ¬Â·¾¶´íÎó
+	}
 	LOG(INFO) << "read image done...";
 	cv::Mat srcImg;
 	int cardFlag = IdenCardType(srcImg, irFrontImg, irBackImg, viFrontImg, viBackImg);
