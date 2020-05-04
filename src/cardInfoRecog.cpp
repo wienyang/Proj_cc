@@ -4,10 +4,9 @@ bool glog_initialized = false;
 
 
 //写入结果
-int writeResult(std::string saveDir, std::map<std::string, std::string> result) {
-	std::string resultOut = saveDir + "\\wy";//正确结果的文件夹
-	CreateDirectory(resultOut.c_str(), NULL);
-	std::string resultPath = resultOut + "\\cardInfo.txt";
+int writeResult(std::string save_dir, std::map<std::string, std::string> result) {
+	
+	std::string resultPath = save_dir + "\\cardInfo.txt";
 	std::map <std::string, std::string>::iterator res_iter;
 
 
@@ -85,14 +84,24 @@ void* init_yolo_model(const char* model_path) {
 //返回-4：获取的信息不全，认为错误类型证件
 
 int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo, const char* irFront, const char* irBack, const char* viFront, const char* viBack) {
-	//FLAGS_log_dir = "./wy";
-	//if (!glog_initialized)
-	//{
-	//	google::InitGoogleLogging("getCardInfo");
-	//	glog_initialized = true;
-	//}
+	std::string save_dir = saveDir;
+	save_dir = save_dir + "\\wy";//结果路径
+	std::string log_dir = save_dir + "\\log";//日志保存路径
+	CreateDirectory(save_dir.c_str(), NULL);
+	CreateDirectory(log_dir.c_str(), NULL);
+
+	FLAGS_log_dir = log_dir;
+	if (!glog_initialized)
+	{
+		google::InitGoogleLogging("getCardInfo");
+		glog_initialized = true;
+	}
 	OCR* ocr = (OCR*)tmp_crnn;
 	YOLO* yolo = (YOLO*)tmp_yolo;
+	LOG(INFO) << "getCardInfo start...";
+	if(NULL==ocr)LOG(ERROR) << "ocr is NULL...";
+	if (NULL == yolo)LOG(ERROR) << "yolo is NULL...";
+
 	//读取图片
 	cv::Mat viFrontImg;
 	cv::Mat viBackImg;
@@ -103,35 +112,78 @@ int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo, const char* 
 	irFrontImg = cv::imread(irFront);
 	irBackImg = cv::imread(irBack);
 	if (viFrontImg.cols == 0 || viBackImg.cols == 0 || irFrontImg.cols == 0 || irBackImg.cols == 0)return -1;//图片路径错误
-	//LOG(INFO) << "read image done...";
+	LOG(INFO) << "read image done...";
 	cv::Mat srcImg;
 	int cardFlag = IdenCardType(srcImg, irFrontImg, irBackImg, viFrontImg, viBackImg);
 	//cv::imshow("", srcImg);
 	//cv::waitKey(0);
 	if (cardFlag == -1) {
 		//std::cout << "未知证件类型" << endl;
+		LOG(INFO) << "unknow card type...";
+		//关闭glog
+		if (glog_initialized)
+		{
+			google::ShutdownGoogleLogging();
+			glog_initialized = false;
+		}
 		return -2;
 	}
 	if (cardFlag == -2) {
 		//std::cout << "证件图像大小不符合要求" << endl;
+		LOG(INFO) << "wrong card size...";
+		//关闭glog
+		if (glog_initialized)
+		{
+			google::ShutdownGoogleLogging();
+			glog_initialized = false;
+		}
 		return -3;
 	}
-	//LOG(INFO) << "find card type done...";
+	LOG(INFO) << "find card type done...";
 	std::vector<cv::Rect> boxes;
-	yolo->text_detect(srcImg.clone(), boxes);//yolo模型路径要注意
-
+	yolo->text_detect(srcImg.clone(), boxes);
+	LOG(INFO) << "detect boxes done...";
 	std::map<string, string> result;
 	if (cardFlag /10 == 0) {//澳门
+		LOG(INFO) << "card type AM...";
 		AMpInfo(ocr, boxes, srcImg, result);
 		//cout << "结果条目" << result.size() << endl;
-		if (result.size() < 6)return -4;//识别结果不全，认为是错误的证件
+		if (result.size() < 6) {
+			LOG(INFO) << "mising more than one item...";
+			//关闭glog
+			if (glog_initialized)
+			{
+				google::ShutdownGoogleLogging();
+				glog_initialized = false;
+			}
+			return -4;//识别结果不全，认为是错误的证件
+		}
+		
 	}
 	else if (cardFlag /10 == 1) {//香港
+		LOG(INFO) << "card type HK...";
 		//nhkpinfo(&ocr, boxes, whiteimg,result);
 		nHKpInfo(ocr, boxes, srcImg, result);
 		//cout <<"结果条目"<< result.size() << endl;
-		if (result.size() < 5)return -4;//识别结果不全，认为是错误的证件
+		if (result.size() < 5) {
+			LOG(INFO) << "mising more than one item...";
+			//关闭glog
+			if (glog_initialized)
+			{
+				google::ShutdownGoogleLogging();
+				glog_initialized = false;
+			}
+			return -4;//识别结果不全，认为是错误的证件
+		}
 	}
-	writeResult(saveDir, result);
+	LOG(INFO) << "get card info done...";
+	writeResult(save_dir, result);
+	LOG(INFO) << "write card info done...";
+	//关闭glog
+	if (glog_initialized)
+	{
+		google::ShutdownGoogleLogging();
+		glog_initialized = false;
+	}
 	return cardFlag;
 }

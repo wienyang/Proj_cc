@@ -10,8 +10,8 @@
 #include"cardRecog.h"
 
 
-//#define GLOG_NO_ABBREVIATED_SEVERITIES 
-//#include "glog/logging.h"
+#define GLOG_NO_ABBREVIATED_SEVERITIES 
+#include "glog/logging.h"
 
 
 void* init_crnn_net(const char* model_path);
