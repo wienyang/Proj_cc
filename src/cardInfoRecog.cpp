@@ -36,6 +36,7 @@ void* init_crnn_net(const char* model_path) {
 	OCR* ocr = new OCR;
 	std::string modelPath = model_path;
 	std::string pb_path = modelPath + "\\out.pb";
+	pb_path = GBKToUTF8(pb_path);
 	std::string char_table_path = modelPath + "\\char_table.txt";
 	ocr->setNumClass(7822);//5991
 	ocr->readCharTable(char_table_path);
