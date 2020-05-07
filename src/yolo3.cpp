@@ -1,5 +1,5 @@
-#pragma once
 #include "yolo3.h";
+using namespace std;
 
 int GAPx = 150;//200
 int GAPy = 10;
@@ -221,7 +221,7 @@ vector<cv::Rect> postprocess(cv::Mat& frame, const vector<cv::Mat>& outs, float 
 }
 
 
-int YOLO::init_yolo(std::string yoloConfigPath, std::string yoloWeightsPath) {
+int YOLO::init_yolo(string yoloConfigPath,string yoloWeightsPath) {
 	cv::String modelConfiguration = yoloConfigPath;
 	cv::String modelBinary = yoloWeightsPath;
 	try {
@@ -255,7 +255,7 @@ int YOLO::text_detect(cv::Mat img, vector<cv::Rect>& boxes){
 	if (img.channels() == 1)
 		cvtColor(img, img, cv::COLOR_GRAY2BGR);
 
-	std::vector<cv::Mat> frames;
+	vector<cv::Mat> frames;
 	frames.push_back(img);
 	cv::Mat inputBlob = blobFromImages(frames, 1 / 255.F, cv::Size(608, 608), cv::Scalar(), true, false);
 	
