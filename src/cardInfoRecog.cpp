@@ -86,12 +86,6 @@ void* init_yolo_model(const char* model_path) {
 //返回-4：获取的信息不全，认为错误类型证件
 
 int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo, const char* irFront, const char* irBack, const char* viFront, const char* viBack) {
-	//FLAGS_log_dir = "./wy";
-	//if (!glog_initialized)
-	//{
-	//	google::InitGoogleLogging("getCardInfo");
-	//	glog_initialized = true;
-	//}
 	OCR* ocr = (OCR*)tmp_crnn;
 	YOLO* yolo = (YOLO*)tmp_yolo;
 	//读取图片
@@ -104,20 +98,17 @@ int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo, const char* 
 	irFrontImg = cv::imread(irFront);
 	irBackImg = cv::imread(irBack);
 	if (viFrontImg.cols == 0 || viBackImg.cols == 0 || irFrontImg.cols == 0 || irBackImg.cols == 0)return -1;//图片路径错误
-	//LOG(INFO) << "read image done...";
+	
 	cv::Mat srcImg;
-	int cardFlag = IdenCardType(srcImg, irFrontImg, irBackImg, viFrontImg, viBackImg);
-	//cv::imshow("", srcImg);
-	//cv::waitKey(0);
+	int cardFlag = 0;
+	//int cardFlag = IdenCardType(srcImg, irFrontImg, irBackImg, viFrontImg, viBackImg);
+
 	if (cardFlag == -1) {
-		//std::cout << "未知证件类型" << endl;
 		return -2;
 	}
 	if (cardFlag == -2) {
-		//std::cout << "证件图像大小不符合要求" << endl;
 		return -3;
 	}
-	//LOG(INFO) << "find card type done...";
 	std::vector<cv::Rect> boxes;
 	yolo->text_detect(srcImg.clone(), boxes);//yolo模型路径要注意
 
@@ -128,9 +119,7 @@ int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo, const char* 
 		if (result.size() < 6)return -4;//识别结果不全，认为是错误的证件
 	}
 	else if (cardFlag /10 == 1) {//香港
-		//nhkpinfo(&ocr, boxes, whiteimg,result);
 		nHKpInfo(ocr, boxes, srcImg, result);
-		//cout <<"结果条目"<< result.size() << endl;
 		if (result.size() < 5)return -4;//识别结果不全，认为是错误的证件
 	}
 	writeResult(saveDir, result);
