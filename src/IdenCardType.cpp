@@ -146,7 +146,7 @@ int distinguishHKtype(Mat uv_A,Mat ir_B) {
 *			-2   图片大小不符合要求
 *  @Description: 找出证件类型和正反，并进行纠正
 */
-int IdenCardType(Mat& ir_A, Mat& ir_B, Mat& uv_A, Mat& uv_B, Mat& vi_A, Mat& vi_B)
+int IdenCardType( Mat& vi_A, Mat& vi_B,Mat& ir_A, Mat& ir_B, Mat& uv_A, Mat& uv_B)
 {
 	//图片大小太小，退出
 	if (ir_A.rows < 600 || ir_A.cols < 900) {

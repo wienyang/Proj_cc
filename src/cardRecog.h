@@ -17,23 +17,23 @@ extern "C" {
 		 输入：
 			tmp_crnn:crnn模型指针
 			tmp_yolo:yolo模型指针
-			irFront,irBack,viFront,viBack分别为ir图像ab面和vi图像的ab面
+			viFront,viBack,irFront,irBack,uvFront,uvBack分别为vi、ir和uv图像的ab面
 		 返回值：
 				返回cardFlag:识别成功
-				0    澳门，正面正向
-				1    澳门，正面反向
-				2	   澳门，反面正向
-				3    澳门，反面反向
-				10   香港，正面正向
-				11   香港，正面反向
-				12   香港，反面正向
-				13   香港，反面反向
-			返回-1:图片读取错误
-			返回-2:未知证件类型
-			返回-3：证件大小不符合要求
-			返回-4：获取的信息不全，认为错误类型证件*/
-	 __declspec(dllexport) int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo, const char* irFront, const char* irBack, const char* viFront, const char* viBack);
-
+					cardFlag = cardType * 10 + cardDirection
+					cardType   			    cardDirection
+					0    澳门				0	正面正向
+					1    香港永久新			1	正面反向
+					2	 香港永久旧			2	反面正向
+					3    香港非永久旧		3	反面反向
+					4    香港身份证（未能细分）
+				返回-1:图片读取错误
+				返回-2:未知证件类型
+				返回-3：证件大小不符合要求
+				返回-4：获取的信息不全，认为错误类型证件
+	*/
+	 __declspec(dllexport) int getCardInfo(const char* saveDir, void* tmp_crnn, void* tmp_yolo,
+		const char* viFront, const char* viBack, const char* irFront, const char* irBack,const char* uvFront, const char* uvBack);
 
 	 /*mrz识别api
 		 输入：

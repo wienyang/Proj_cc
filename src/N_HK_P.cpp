@@ -15,8 +15,7 @@ void nHKpInfo(OCR* ocrModel, vector<cv::Rect> boxes, cv::Mat img, map<string, st
 		//tensorflow::Tensor input = Mat2Tensor(rect);
 		wstring res = ocrModel->recognize(rect);
 		string ans = WstringToString(res);
-		//gbk to utf8
-		//ans = GBKToUTF8(ans);
+		std::cout <<  ans << std::endl;
 
 
 		if (result.find("ChineseName") == result.end() &&
@@ -33,6 +32,14 @@ void nHKpInfo(OCR* ocrModel, vector<cv::Rect> boxes, cv::Mat img, map<string, st
 			box.x * 1.0 / w < 0.08 && regex_match(ans, reg)) {
 
 			result.insert(pair<string, string>("PinYin", ans));
+			continue;
+		}
+
+		//姓名编码
+		reg="^([0-9]{4})+$";
+		if (result.find("NameCode") == result.end() &&
+			regex_match(ans, reg)) {
+			result.insert(pair<string, string>("NameCode", ans));
 			continue;
 		}
 
@@ -56,6 +63,23 @@ void nHKpInfo(OCR* ocrModel, vector<cv::Rect> boxes, cv::Mat img, map<string, st
 		reg = ("^(男|女)|[FM]|((男|女)[FM])$");
 		if (result.find("Gender") == result.end() && regex_match(ans, reg)) {
 			result.insert(pair<string, string>("Gender", ans.substr(ans.length()-1)));
+			continue;
+		}
+
+		//初次签发日期
+		reg = "^（[0-9]{2}-[0-9]{2}.{1,2}$";
+		if (result.find("FirstIssueDate") == result.end() &&
+			regex_match(ans, reg)) {
+			ans.erase(remove(ans.begin(), ans.end(), '-'), ans.end());//去掉-
+			
+			result.insert(pair<string, string>("FirstIssueDate", ans.substr(2,4)));
+			continue;
+		}
+		reg = "^[(][0-9]{2}-[0-9]{2}.{1,2}$";
+		if (result.find("FirstIssueDate") == result.end() &&
+			regex_match(ans, reg)) {
+			ans.erase(remove(ans.begin(), ans.end(), '-'), ans.end());//去掉-
+			result.insert(pair<string, string>("FirstIssueDate", ans.substr(1, 4)));
 			continue;
 		}
 

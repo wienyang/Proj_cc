@@ -16,4 +16,5 @@
 
 void* init_crnn_net(const char* model_path);
 void* init_yolo_model(const char* model_path);
-int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo, const char* irFront, const char* irBack, const char* viFront, const char* viBack);
+int getCardInfo(const char* saveDir, void* tmp_crnn, void* tmp_yolo,
+	const char* viFront, const char* viBack,const char* irFront, const char* irBack, const char* uvFront, const char* uvBack);

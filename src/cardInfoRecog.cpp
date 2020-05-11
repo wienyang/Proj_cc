@@ -1,15 +1,38 @@
 #include "cardInfoRecog.h"
 
-bool glog_initialized = false;
 
+void getFace(std::string resultOut,int cardType, cv::Mat vi_A, cv::Mat ir_A) {
+	cv::Mat viFace, irFace;
+	cv::Rect faceArea;
+	switch (cardType)
+	{
+	case 0://澳门身份证
+		faceArea = { 690,60,265,330 };
+		break;
+	case 1://香港永久新
+		faceArea = { 70,255,240,340 };
+		break;
+	case 2://香港永久旧
+		faceArea = { 705,220,220,280 };
+		break;
+	case 3://香港非永久旧
+		faceArea = { 705,210,210,290 };
+		break;
+	default:
+		return;
+	}
+	viFace = vi_A(faceArea).clone();
+	irFace = ir_A(faceArea).clone();
+	//写入图片
+	cv::imwrite(resultOut + "\\viFace.bmp", viFace);
+	cv::imwrite(resultOut + "\\irFace.bmp", irFace);
 
+}
 //写入结果
-int writeResult(std::string saveDir, std::map<std::string, std::string> result) {
-	std::string resultOut = saveDir + "\\wy";//正确结果的文件夹
-	CreateDirectory(resultOut.c_str(), NULL);
-	std::string resultPath = resultOut + "\\cardInfo.txt";
-	std::map <std::string, std::string>::iterator res_iter;
+int writeResult(std::string resultOut, std::map<std::string, std::string> result) {
 
+	std::string resultPath = resultOut + "\\cardInfo.txt";//文件保存路径
+	std::map <std::string, std::string>::iterator res_iter;
 
 	Json::Value info;
 	for (res_iter = result.begin(); res_iter != result.end(); res_iter++) {
@@ -71,21 +94,28 @@ void* init_yolo_model(const char* model_path) {
 
 }
 
-//返回cardFlag:识别成功
-	//0    澳门，正面正向
-	//1    澳门，正面反向
-	//2	   澳门，反面正向
-	//3    澳门，反面反向
-	//10   香港，正面正向
-	//11   香港，正面反向
-	//12   香港，反面正向
-	//13   香港，反面反向
-//返回-1:图片读取错误
-//返回-2:未知证件类型
-//返回-3：证件大小不符合要求
-//返回-4：获取的信息不全，认为错误类型证件
+/**
+*返回cardFlag:识别成功
+*	cardFlag = cardType * 10 + cardDirection
+*	cardType   			    cardDirection
+*	0    澳门				0	正面正向
+*	1    香港永久新			1	正面反向
+*	2	 香港永久旧			2	反面正向
+*	3    香港非永久旧		3	反面反向
+*	4    香港身份证（未能细分）
+*返回-1:图片读取错误
+*返回-2:未知证件类型
+*返回-3：证件大小不符合要求
+*返回-4：获取的信息不全，认为错误类型证件
+*/
 
-int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo, const char* irFront, const char* irBack, const char* viFront, const char* viBack) {
+int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo, 
+	const char* viFront, const char* viBack,const char* irFront, const char* irBack,const char* uvFront,const char*uvBack) {
+	//创建文件保存目录
+	std::string resultOut = saveDir;
+	resultOut = resultOut + "\\wy";
+	CreateDirectory(resultOut.c_str(), NULL);
+
 	OCR* ocr = (OCR*)tmp_crnn;
 	YOLO* yolo = (YOLO*)tmp_yolo;
 	//读取图片
@@ -93,35 +123,38 @@ int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo, const char* 
 	cv::Mat viBackImg;
 	cv::Mat irFrontImg;
 	cv::Mat irBackImg;
+	cv::Mat uvFrontImg;
+	cv::Mat uvBackImg;
 	viFrontImg = cv::imread(viFront);
 	viBackImg = cv::imread(viBack);
 	irFrontImg = cv::imread(irFront);
 	irBackImg = cv::imread(irBack);
-	if (viFrontImg.cols == 0 || viBackImg.cols == 0 || irFrontImg.cols == 0 || irBackImg.cols == 0)return -1;//图片路径错误
+	uvFrontImg = cv::imread(uvFront);
+	uvBackImg = cv::imread(uvBack);
+	if (viFrontImg.empty()|| viBackImg.empty() || irFrontImg.empty() || irBackImg.empty() || uvFrontImg.empty()|| uvBackImg.empty())return -1;//图片路径错误
 	
-	cv::Mat srcImg;
-	int cardFlag = 0;
-	//int cardFlag = IdenCardType(srcImg, irFrontImg, irBackImg, viFrontImg, viBackImg);
+	int cardFlag = IdenCardType(viFrontImg, viBackImg,irFrontImg, irBackImg,uvFrontImg, uvBackImg);//区分类型并校正图片
+	getFace(resultOut, cardFlag/10, viFrontImg, irFrontImg);//获取人脸
 
-	if (cardFlag == -1) {
+	if (cardFlag == -1) {//未知证件类型
 		return -2;
 	}
-	if (cardFlag == -2) {
+	if (cardFlag == -2) {//证件大小不符合要求
 		return -3;
 	}
 	std::vector<cv::Rect> boxes;
-	yolo->text_detect(srcImg.clone(), boxes);//yolo模型路径要注意
+	yolo->text_detect(irFrontImg.clone(), boxes);//yolo模型路径要注意
 
 	std::map<string, string> result;
 	if (cardFlag /10 == 0) {//澳门
-		AMpInfo(ocr, boxes, srcImg, result);
+		AMpInfo(ocr, boxes, irFrontImg, result);
 		//cout << "结果条目" << result.size() << endl;
 		if (result.size() < 6)return -4;//识别结果不全，认为是错误的证件
 	}
-	else if (cardFlag /10 == 1) {//香港
-		nHKpInfo(ocr, boxes, srcImg, result);
+	else if (cardFlag /10 >= 1) {//香港
+		nHKpInfo(ocr, boxes, irFrontImg, result);
 		if (result.size() < 5)return -4;//识别结果不全，认为是错误的证件
 	}
-	writeResult(saveDir, result);
+	writeResult(resultOut, result);
 	return cardFlag;
 }

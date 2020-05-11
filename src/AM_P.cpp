@@ -20,8 +20,7 @@ void AMpInfo(OCR* ocrModel, vector<cv::Rect> boxes, cv::Mat img, map<string, str
 
 		//wstring转string
 		string ans = WstringToString(res);
-		//gbk to utf8
-		//ans = GBKToUTF8(ans);
+		std::cout << ans << std::endl;
 
 		//根据框的大小和位置信息匹配姓名
 		if (result.find("ChineseName") == result.end() &&
@@ -36,9 +35,16 @@ void AMpInfo(OCR* ocrModel, vector<cv::Rect> boxes, cv::Mat img, map<string, str
 			//cout << ans << endl;
 			continue;
 		}
+		//姓名编码
+		regex reg("^([0-9]{4})+$");
+		if (result.find("NameCode") == result.end() &&
+			regex_match(ans, reg)) {
+			result.insert(pair<string, string>("NameCode", ans));
+			continue;
+		}
 
 		//拼音姓名
-		regex reg("^[a-zA-Z]+[a-zA-Z0-9,，]+");
+		reg=("^[a-zA-Z]+[a-zA-Z0-9,，]+");
 		if (result.find("PinYin") == result.end() &&
 			box.x * 1.0 / w < 0.08 &&
 			regex_match(ans, reg)) {
