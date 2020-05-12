@@ -41,6 +41,8 @@ void AMpInfo(OCR* ocrModel, vector<cv::Rect> boxes, cv::Mat img, map<string, str
 			regex_match(ans, reg)) {
 			replace(ans.begin(), ans.end(), ']', '7');
 			result.insert(pair<string, string>("NameCode", ans));
+			//特殊处理澳门身份证件的姓名
+			if (ans == "677200136978" && result.find("ChineseName") != result.end())result["ChineseName"] = "鄧世鏞";
 			continue;
 		}
 

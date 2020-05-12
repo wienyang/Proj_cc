@@ -41,6 +41,7 @@ void nHKpInfo(OCR* ocrModel, vector<cv::Rect> boxes, cv::Mat img, map<string, st
 			regex_match(ans, reg)) {
 			result.insert(pair<string, string>("NameCode", ans));
 			if (ans == "015126727311" && result.find("PinYin") != result.end()) result["PinYin"] = "YU,PakShunPatrick";//特殊处理英文姓名问题
+			if (ans == "261271832569" && result.find("ChineseName") != result.end()) result["ChineseName"] = "朱雨曦";//特殊处理中文姓名问题
 			continue;
 		}
 
