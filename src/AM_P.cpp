@@ -36,9 +36,10 @@ void AMpInfo(OCR* ocrModel, vector<cv::Rect> boxes, cv::Mat img, map<string, str
 			continue;
 		}
 		//姓名编码
-		regex reg("^([0-9]{4})+$");
+		regex reg("^[0-9].[0-9]{2}([0-9]{4})+$");//特殊处理澳门中文电码
 		if (result.find("NameCode") == result.end() &&
 			regex_match(ans, reg)) {
+			replace(ans.begin(), ans.end(), ']', '7');
 			result.insert(pair<string, string>("NameCode", ans));
 			continue;
 		}
@@ -48,6 +49,7 @@ void AMpInfo(OCR* ocrModel, vector<cv::Rect> boxes, cv::Mat img, map<string, str
 		if (result.find("PinYin") == result.end() &&
 			box.x * 1.0 / w < 0.08 &&
 			regex_match(ans, reg)) {
+			replace(ans.begin(), ans.end(), '5', 'S');//特殊处理
 			result.insert(pair<string, string>("PinYin", ans));
 			//std::cout << "拼音：" << ans << endl;
 			continue;
