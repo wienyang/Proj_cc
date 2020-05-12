@@ -16,84 +16,88 @@ void AMpInfo(OCR* ocrModel, vector<cv::Rect> boxes, cv::Mat img, map<string, str
 		//识别
 		cv::Mat rect = img(box);
 		//tensorflow::Tensor input = Mat2Tensor(rect);
-		wstring res = ocrModel->recognize(rect);
+		wstring ans = ocrModel->recognize(rect);
 
 		//wstring转string
-		string ans = WstringToString(res);
-		std::cout << ans << std::endl;
+		//string ans = WstringToString(res);
+		//std::cout << ans << std::endl;
 
-		//根据框的大小和位置信息匹配姓名
+		//根据框的大小和位置信息匹配姓名（中文逗号未处理）
 		if (result.find("ChineseName") == result.end() &&
 			box.x * 1.0 / w < 0.08 &&
 			box.y * 1.0 / h < 0.07 &&
 			0.055 < box.height * 1.0 / h &&
 			box.height * 1.0 / h < 0.11) {
 			ans.erase(remove(ans.begin(), ans.end(), ','), ans.end());//去掉,
-			ans.erase(remove(ans.begin(), ans.end(), '，'), ans.end());//去掉,
-			result.insert(pair<string, string>("ChineseName", ans));
-			//cout << "姓名：";
-			//cout << ans << endl;
+			//ans.erase(remove(ans.begin(), ans.end(), '，'), ans.end());//不能去掉中文字符
+			string res = WstringToString(ans);
+			result.insert(pair<string, string>("ChineseName", res));
 			continue;
 		}
 		//姓名编码
-		regex reg("^[0-9].[0-9]{2}([0-9]{4})+$");//特殊处理澳门中文电码
+		wregex reg(L"^[0-9].[0-9]{2}([0-9]{4})+$");//特殊处理澳门中文电码
 		if (result.find("NameCode") == result.end() &&
 			regex_match(ans, reg)) {
 			replace(ans.begin(), ans.end(), ']', '7');
-			result.insert(pair<string, string>("NameCode", ans));
+			string res = WstringToString(ans);
+			result.insert(pair<string, string>("NameCode", res));
 			//特殊处理澳门身份证件的姓名
-			if (ans == "677200136978" && result.find("ChineseName") != result.end())result["ChineseName"] = "鄧世鏞";
+			if (res == "677200136978" && result.find("ChineseName") != result.end())result["ChineseName"] = "鄧世鏞";
 			continue;
 		}
 
 		//拼音姓名
-		reg=("^[a-zA-Z]+[a-zA-Z0-9,，]+");
+		reg=L"^[a-zA-Z]+[a-zA-Z0-9,，]+";
 		if (result.find("PinYin") == result.end() &&
 			box.x * 1.0 / w < 0.08 &&
 			regex_match(ans, reg)) {
 			replace(ans.begin(), ans.end(), '5', 'S');//特殊处理
-			result.insert(pair<string, string>("PinYin", ans));
+			string res = WstringToString(ans);
+			result.insert(pair<string, string>("PinYin", res));
 			//std::cout << "拼音：" << ans << endl;
 			continue;
 		}
 
 		//出生日期
-		reg = ("^[0-9]{2}-[0-9]{2}-[0-9]{4}$");
+		reg = L"^[0-9]{2}-[0-9]{2}-[0-9]{4}$";
 		if (result.find("BirthDate") == result.end() &&
 			box.x * 1.0 / w < 0.08 &&
 			regex_match(ans, reg)) {
 			ans.erase(remove(ans.begin(), ans.end(), '-'), ans.end());//去掉-
-			result.insert(pair<string, string>("BirthDate", ans));
-			//std::cout << "出生日期：" << ans << endl;
+			string res = WstringToString(ans);
+			result.insert(pair<string, string>("BirthDate", res));
 			continue;
 		}
 
 		//性别
-		reg = ("^[A-Za-z]{1,3}[MF]$");
+		reg = L"^[A-Za-z]{1,3}[MFmf]$";
 		if (result.find("Gender") == result.end() && regex_match(ans, reg)) {
-			result.insert(pair<string, string>("Gender", ans.substr(ans.length() - 1)));
+			string res = WstringToString(ans);
+			result.insert(pair<string, string>("Gender", res.substr(res.length() - 1)));
 			continue;
 		}
 
-		//证件有效期
-		reg = ("^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9]{2}-[0-9]{2}-[0-9]{4}$");
+		//首次签证日期&&证件有效期
+		reg = L"^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9]{2}-[0-9]{2}-[0-9]{4}$";
 		if (result.find("ExpiringDate") == result.end() &&
 			box.x * 1.0 / w < 0.08 &&
 			regex_match(ans, reg)) {
 			ans.erase(remove(ans.begin(), ans.end(), '-'), ans.end());//去掉-
-			result.insert(pair<string, string>("ExpiringDate", ans.substr(0,8)));
-			//std::cout << "证件有效期：" << ans.substr(0, 10) << endl;
+			string res = WstringToString(ans);
+			result.insert(pair<string, string>("ExpiringDate", res.substr(0,8)));
+			result.insert(pair<string, string>("FirstIssueDate", res.substr(8)));//首次签证日期
 			continue;
 		}
 
-		//签发日期&&证件号
-		reg = ("^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9]{7}[(（][0-9][)）]$");
+		//签发日期&&证件号（中文括号未处理）
+		reg = L"^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9]{7}[(（][0-9][)）]$";
 		if (result.find("IssueDate") == result.end() &&
 			result.find("IDnumber") == result.end() &&
 			regex_match(ans, reg)) {
 			ans.erase(remove(ans.begin(), ans.end(), '-'), ans.end());//去掉-
-			result.insert(pair<string, string>("IssueDate", ans.substr(0,8)));
-			result.insert(pair<string, string>("IDnumber", ans.substr(8)));
+			string res = WstringToString(ans);
+			result.insert(pair<string, string>("IssueDate", res.substr(0,8)));
+			result.insert(pair<string, string>("IDnumber", res.substr(8)));
 			continue;
 		}
 	}
