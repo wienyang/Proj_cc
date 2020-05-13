@@ -63,7 +63,7 @@ void* init_crnn_net(const char* model_path) {
 	std::string char_table_path = modelPath + "\\char_table.txt";
 	ocr->setNumClass(7822);//5991
 	ocr->readCharTable(char_table_path);
-	std::cout << ocr->char_table.length()<<std::endl;
+	//std::cout << ocr->char_table.length()<<std::endl;
 	//ocr.LoadGraph(pb_path);
 
 	if (ocr->LoadGraph(pb_path) != tensorflow::Status::OK()) {
@@ -149,11 +149,11 @@ int getCardInfo(const char* saveDir,void* tmp_crnn, void* tmp_yolo,
 	if (cardFlag /10 == 0) {//澳门
 		AMpInfo(ocr, boxes, irFrontImg, result);
 		//cout << "结果条目" << result.size() << endl;
-		if (result.size() < 6)return -4;//识别结果不全，认为是错误的证件
+		if (result.size() < 7)return -4;//识别结果不全，认为是错误的证件
 	}
 	else if (cardFlag /10 >= 1) {//香港
 		nHKpInfo(ocr, boxes, irFrontImg, result);
-		if (result.size() < 5)return -4;//识别结果不全，认为是错误的证件
+		if (result.size() < 6)return -4;//识别结果不全，认为是错误的证件
 	}
 	writeResult(resultOut, result);
 	return cardFlag;
